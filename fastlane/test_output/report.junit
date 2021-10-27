@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites name='BSGToolbarViewTests.xctest' tests='7' failures='0'>
+  <testsuite name='BSGToolbarViewTests.ToolbarViewTests' tests='7' failures='0'>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testActivation' time='0.038'/>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testDeactivation' time='0.003'/>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testFrameInitializer' time='0.007'/>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testMultipleSelection' time='0.006'/>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testSingleLockSelection' time='0.004'/>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testSingleSelection' time='0.004'/>
+    <testcase classname='BSGToolbarViewTests.ToolbarViewTests' name='testToolInitializer' time='0.005'/>
+  </testsuite>
+</testsuites>

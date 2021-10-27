@@ -1,0 +1,22 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: Run Tests
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Ruby Setup
+      run: |
+        gem install bundler
+        bundle install
+    - name: Fastlane Scan
+      run: bundle exec fastlane test
