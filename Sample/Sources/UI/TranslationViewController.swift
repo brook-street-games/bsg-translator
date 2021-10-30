@@ -108,7 +108,7 @@ extension TranslationViewController {
     @objc private func buttonPressed(_ sender: UIButton) {
         
         guard let language = Language(rawValue: segmentedControl.selectedSegmentIndex) else { return }
-        translator.getTranslations(targetLanguage: language.alpha2, translationId: Int(slider.value))
+        translator.updateTranslations(targetLanguage: language.alpha2, translationId: Int(slider.value))
     }
 }
 

@@ -172,7 +172,7 @@ extension Translator {
     /// - parameter targetLanguage: An optional alpha2 language code. If nil is passed here, the iOS setting language will be used. Nil is the default.
     /// - parameter translationId: An optional ID for a translation set. If a local translation set with an ID greater than the minimum is not found, a new API call will be made. For example, a client could keep track of the last translationId used and only update it when changes have been made to the input strings to force a new translation. If no minimum ID is specified, any saved translation set matching the target language will be returned. On successful translation, the new translationId is saved to compare against next time. Nil is the default.
     ///
-    public func getTranslations(targetLanguage: String? = nil, translationId: Int? = nil) {
+    public func updateTranslations(targetLanguage: String? = nil, translationId: Int? = nil) {
         
         do {
             inputStrings = try getInputStrings()
