@@ -28,12 +28,15 @@ public extension TranslatorDelegate {
 
 public class Translator {
     
-    // MARK: - Private Properties -
+    // MARK: - Public Properties -
     
     /// The development language.
-    private var inputLanguage: String
+    public var inputLanguage: String
     /// Determines what to use as translation source.
-    private var inputType: InputType
+    public var inputType: InputType
+    
+    // MARK: - Private Properties -
+    
     /// The strings sent out for translation.
     private var inputStrings: [String: String] = [:]
     /// The alpha2 code of the language set in iOS settings.
