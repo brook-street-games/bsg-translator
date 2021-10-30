@@ -122,12 +122,12 @@ extension Translator {
         switch inputType {
             
         case .stringsFile(let fileName):
-            guard let stringsFilePath = Bundle.main.path(forResource: fileName, ofType: "strings") else { throw TranslationError(type: .missingSourceStrings, additionalInfo: "Could not find file named \(fileName).string") }
-            guard let inputStrings = NSDictionary(contentsOfFile: stringsFilePath) as? [String: String], !inputStrings.isEmpty else { throw TranslationError(type: .missingSourceStrings) }
+            guard let stringsFilePath = Bundle.main.path(forResource: fileName, ofType: "strings") else { throw TranslationError(type: .missingInputStrings, additionalInfo: "Could not find file named \(fileName).string") }
+            guard let inputStrings = NSDictionary(contentsOfFile: stringsFilePath) as? [String: String], !inputStrings.isEmpty else { throw TranslationError(type: .missingInputStrings) }
             return inputStrings
             
         case .manual(let inputStrings):
-            guard inputStrings.isEmpty else { throw TranslationError(type: .missingSourceStrings, additionalInfo: "Input strings cannot be empty.") }
+            guard !inputStrings.isEmpty else { throw TranslationError(type: .missingInputStrings, additionalInfo: "Input strings cannot be empty.") }
             return inputStrings
         }
     }

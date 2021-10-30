@@ -38,7 +38,7 @@ extension TranslationError {
     
     public enum ErrorType: String {
         
-        case missingSourceStrings = "Missing source strings"
+        case missingInputStrings = "Missing input strings"
         case emptyStringsFile = "Empty strings file detected"
         case invalidConfiguration = "Missing configuration for translator"
         case invalidParameters = "Invalid parameters sent to API"
