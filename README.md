@@ -1,55 +1,91 @@
 # BSGTranslator
 
-## Description
-BSGTranslator uses Google Translate API to help iOS applications support multiple languages as smoothly as possible.
+## Overview
 
-## Requirements
-
-+ iOS 13+
-+ Google Translate API key
+A framework for quickly supporting multiple languages using Google Translate API. This is a freemium API, which means conmsumers will be charged after reaching a certain threshold. This framework utilizes caching to be as stringent as possible with API calls.
 
 ## Installation
 
-### Create RapidAPI Application
+#### Requirements
+
++ iOS 13+
++ Google Translate API
+
+#### Google Translate API
 
 1. Create a [RapidAPI](https://rapidapi.com/) account.
-2. Visit API Hub from the dashboard and subscribe to Google Translate API. Note this is a freemium API, which means conmsumers will be charged after reaching a certain threshold. This framework utilizes caching to try to be as stringent as possible with API calls.
-3. Navigate to My Apps->Add New App from the dashboard and create a new application.
+2. Visit **API Hub** from the dashboard and subscribe to Google Translate API.
+3. Navigate to ***My Apps->Add New App*** from the dashboard and create a new application.
 4. Copy the API key for the new application.
 
-### Add Swift Package Manager Dependency
+#### Swift Package Manager
 
-1. File->Add Packages
-3. Enter project URL (https://github.com/brook-street-games/bsg-translator.git) and click Next
-4. Select (Branch, main) and click Add Package
+1. Navigate to ***File->Add Packages***.
+3. Enter Package URL: https://github.com/brook-street-games/bsg-translator.git
+3. Select a dependency rule. **Up to Next Major** is recommended.
+4. Select a project.
+5. Select **Add Package**.
 
 ## Usage
 
-### Create a Translator Instance
+#### Create a Strings File
+
+Create a new file at ***File->New->File->Strings File***. This file should contain keys and input language translations for all text to be translated.
+
+Example **Fruit.strings** file.
 
 ```swift
-// Gets input strings directly from a *Test.strings* file.
-var translator = Translator(apiKey: "API_KEY", inputLanguage: "en", inputType: .stringsFile(fileName: "Test"))
-/// Conform to TranslatorDelegate to handle delegate methods
-translator.delegate = self
+"banana" = "Banana";
+"orange" = "Orange";
+"pineapple" = "Pineapple";
 ```
 
-### Get Translations
+#### Get Translations
 
 ```swift
-// Translates input strings into Italian.
+// Import the framework.
+import BSGTranslator
+
+// Grab the API key from installation.
+let apiKey = "API_KEY"
+
+// Create an instance of Translator.
+let translator = Translator(apiKey: apiKey, inputLanguage: "en", inputType: .stringsFile(fileName: "Fruit"), delegate: self)
+
+// Translate input strings into Italian.
 translator.getTranslations(targetLanguage: "it")
-// Optionally specify a translation ID. This will only fire an API call to update if the last update was performed with a transaction ID < 2.
+
+// Conform to TranslatorDelegate to handle the result. If this is the first time translating for a target language, this method will likely take a few seconds to get called while the API call goes out. Subsequent calls will retrieve translations from cache.
+func translator(_ translator: Translator, didReceiveTranslationSet translationSet: TranslationSet) {
+	// Handle translation completion.
+}
+```
+
+#### Access Translations
+
+```swift
+label.text = translator.translate("banana")
+```
+
+## Customization
+
+#### Translation ID
+
+A translation ID can be used to force a new API call when string values change. For example, if the english translation for banana was changed to "Yellow Fruit" in a new version of an application, users with the previous version would still return the cached value "Banana" for the key "banana". Passing a translation ID of 2 (assuming nil or a lower value was previously passed) would force a translation and correctly return "Frutta Gialla".
+
+```swift
 translator.getTranslations(targetLanguage: "it", translationId: 2)
 ```
 
-### Access Translations
+#### Capitalization
 
+* **None**. The translation is returned with no adjustment.
+* **First**. The first letter of the first word is capitalized.
+* **All First**. The first letter of every word is capitalized.
+* **All**. All letters are capitalized.
+       
 ```swift
-// Get translation in Italian.
-label.text = translator.translate("test-key")
-// Optionally specify a capitalization style.
-label.text = translator.translate("test-key", capitalization: .allFirst)
+label.text = translator.translate("banana", capitalization: .all)
 ```
 
 ## Author

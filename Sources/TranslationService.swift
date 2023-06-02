@@ -12,7 +12,10 @@ import Foundation
 ///
 public class TranslationService {
     
-    // MARK: - Private Properties -
+	typealias GoogleTranslateResponseResultHandler = (Result<TranslationService.GoogleTranslateResponse, TranslationError>) -> Void
+	typealias DataResultHandler = (Result<Data, TranslationError>) -> Void
+	
+    // MARK: - Properties -
     
     /// The host of the Google Translate API.
     private let apiHost = "google-translate1.p.rapidapi.com"
@@ -39,7 +42,7 @@ extension TranslationService {
     /// - parameter inputStrings: Strings in the input language to translate.
     /// - parameter inputLanguage: The alpha2 code for the language of *inputStrings*.
     /// - parameter targetLanguage: The language to translate to.
-    /// - parameter delegate: The object that will handle responses.
+    /// - parameter completion: The completion handler.
     ///
     func getGoogleTranslation(for inputStrings: [String], inputLanguage: String = "en", targetLanguage: String, completion: GoogleTranslateResponseResultHandler?) {
 
@@ -77,7 +80,7 @@ extension TranslationService {
     /// - parameter url: The endpoint of the call.
     /// - parameter body: Optional additional info.
     /// - parameter apiKey: The key from API provider.
-    /// - parameter delegate: The completion handler for a result.
+	/// - parameter completion: The completion handler.
     ///
     private func performRequest(url: URL, body: Data? = nil, apiKey: String, completion: DataResultHandler?) {
         

@@ -28,6 +28,12 @@ public extension TranslatorDelegate {
 
 public class Translator {
     
+	// MARK: - Constants -
+	
+	private struct Constants {
+		static let translationSetKey = "translation-set"
+	}
+	
     // MARK: - Public Properties -
     
     /// The development language.
@@ -70,7 +76,7 @@ public class Translator {
     }
 }
 
-// MARK: - Retreival -
+// MARK: - Retrieval -
 
 extension Translator {
     
@@ -148,7 +154,7 @@ extension Translator {
     ///
     private func getCachedTranslationSet(for targetLanguage: String) -> TranslationSet? {
         
-        guard let savedData = UserDefaults.standard.object(forKey: "\(Key.translationSet)_\(targetLanguage)") as? Data else { return nil }
+		guard let savedData = UserDefaults.standard.object(forKey: "\(Constants.translationSetKey)_\(targetLanguage)") as? Data else { return nil }
         return try? JSONDecoder().decode(TranslationSet.self, from: savedData)
     }
     
@@ -161,7 +167,7 @@ extension Translator {
     private func setCachedTranslationSet(_ translationSet: TranslationSet) {
         
         guard let data = try? JSONEncoder().encode(translationSet) else { return }
-        UserDefaults.standard.set(data, forKey: "\(Key.translationSet)_\(translationSet.language)")
+		UserDefaults.standard.set(data, forKey: "\(Constants.translationSetKey)_\(translationSet.language)")
     }
 }
 
