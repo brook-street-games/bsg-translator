@@ -11,16 +11,15 @@ import Foundation
 
 public protocol TranslatorDelegate: AnyObject {
     
-    /// Called when translations have been obtained for the target language, regardless of if an API call was made.
-    func translator(_ translator: Translator, didReceiveTranslationSet translationSet: TranslationSet)
-    /// Called whenever a loggable event occurs. The delegate may then log the event accordingly.
+    /// Called when translation completes, regardless of if an API call was made.
+    func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>)
+    /// Called when a loggable event occurs. The delegate may then log the event accordingly.
     func translator(_ translator: Translator, didEncounterLogEvent logEvent: String)
-    /// Called when an error is encountered.
-    func translator(_ translator: Translator, didEncounterError error: TranslationError)
 }
 
 public extension TranslatorDelegate {
     
+	func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>) {}
     func translator(_ translator: Translator, didEncounterLogEvent logEvent: String) {}
 }
 
@@ -28,45 +27,53 @@ public extension TranslatorDelegate {
 
 public class Translator {
     
+	// MARK: - Constants -
+	
+	public struct Constants {
+		/// The cache directory.
+		public static let diskCacheDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent("bsg/translator")
+	}
+	
     // MARK: - Public Properties -
     
-    /// The development language.
-    public var inputLanguage: String
-    /// Determines what to use as translation source.
-    public var inputType: InputType
-    
+    /// The ISO 639-1 code of the input language. https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes.
+    private(set) public var inputLanguage: String
+	/// The ISO 639-1 code of the output language. The default value is the language set in iOS settings.
+	public var outputLanguage: String
+	/// Optional delegate method handler.
+	public weak var delegate: TranslatorDelegate?
+	
     // MARK: - Private Properties -
     
-    /// The strings sent out for translation.
-    private var inputStrings: [String: String] = [:]
-    /// The alpha2 code of the language set in iOS settings.
-    private var settingsLanguage: String {
-        guard let preferredLanguage = Locale.preferredLanguages.first else { return inputLanguage }
-        return String(preferredLanguage.prefix(2))
-    }
-    /// All available translations.
+	/// Determines the source of input strings.
+	private var inputType: InputType
+    /// The current set of translated text.
     private var currentTranslationSet: TranslationSet?
-    /// Service to interact with Google Translate.
-    private var translationService: TranslationService
-    /// Object that handles events from *translator*.
-    public weak var delegate: TranslatorDelegate?
+    /// The service used to perform translation.
+    private let translationService: TranslationService
+	/// The file manager instance used for caching to disk.
+	private lazy var fileManager = FileManager.default
     
     // MARK: - Setup -
     
     ///
     /// Required initial configuration.
     ///
-    /// - parameter apiKey: A valid key for Google Translate API.
-    /// - parameter inputLanguage: The alpha2 code of the language of the source strings to translate.
-    /// - parameter inputType: Specifies where the source strings should be found.
-    /// - parameter delegate: Optional object to handle events fired by the translator.
+    /// - parameter apiKey: An API key for Google Translate API. See the README for instructions on how to get one.
+    /// - parameter inputLanguage: The ISO 639-1 code of the input language. https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes.
+    /// - parameter inputType: Determines the source of input strings.
+    /// - parameter delegate: Optional delegate method handler.
     ///
     public init(apiKey: String, inputLanguage: String, inputType: InputType, delegate: TranslatorDelegate? = nil) {
         
         self.inputLanguage = inputLanguage
+		// Default to iOS settings language.
+		self.outputLanguage = String(Locale.preferredLanguages.first!.prefix(2))
         self.inputType = inputType
         self.delegate = delegate
         self.translationService = TranslationService(apiKey: apiKey)
+		
+		createCacheDirectory()
     }
 }
 
@@ -75,23 +82,24 @@ public class Translator {
 extension Translator {
     
     public enum CapitalizationStyle {
-        /// Returns the translation without any adjustment.
+		
+        /// No adjustment.
         case none
-        /// Capitalizes the first letter of the translated string.
+        /// Capitalize the first letter of the first word.
         case first
-        /// Captitalizes the first letter of each word in the translated string.
+        /// Captitalize the first letter of each word.
         case allFirst
-        /// Capitalizes all letters in the translated string.
+        /// Capitalize all letters.
         case all
     }
     
     ///
-    /// Searches available translations for one matching the key.
+    /// Get a translation for a specified key in the output language. If no translation is found, the key is returned.
     ///
-    /// - parameter key: The key used as an identifier for the translation.
-    /// - parameter capitalization: The formatting of the translation.
+    /// - parameter key: The key for the translation.
+    /// - parameter capitalization: The formatting for the translation.
     ///
-    /// - returns: Text translated to target language if found, otherwise returns the key.
+    /// - returns: Text translated to output language.
     ///
     public func translate(_ key: String, capitalization: CapitalizationStyle = .first) -> String {
         
@@ -106,31 +114,32 @@ extension Translator {
     }
 }
 
-// MARK: - Source Strings -
+// MARK: - Input Strings -
 
 extension Translator {
     
     public enum InputType {
-        /// Source strings will be read from a bundled .strings file.
+		
+        /// Input strings will be read from a bundled .strings file.
         case stringsFile(fileName: String)
-        /// Source strings will be supplied manually.
+        /// Input strings will be supplied manually.
         case manual(inputStrings: [String: String])
     }
     
     ///
-    /// Gets source strings from the appropriate location based on *sourceType*.
+    /// Get input strings from the appropriate location based on *inputType*.
     ///
     private func getInputStrings() throws -> [String: String] {
         
         switch inputType {
             
         case .stringsFile(let fileName):
-            guard let stringsFilePath = Bundle.main.path(forResource: fileName, ofType: "strings") else { throw TranslationError(type: .missingInputStrings, additionalInfo: "Could not find file named \(fileName).string") }
-            guard let inputStrings = NSDictionary(contentsOfFile: stringsFilePath) as? [String: String], !inputStrings.isEmpty else { throw TranslationError(type: .missingInputStrings) }
+            guard let stringsFilePath = Bundle.main.path(forResource: fileName, ofType: "strings") else { throw TranslationError.invalidStringFile(fileName) }
+			guard let inputStrings = NSDictionary(contentsOfFile: stringsFilePath) as? [String: String], !inputStrings.isEmpty else { throw TranslationError.emptyStringsFile(fileName) }
             return inputStrings
             
         case .manual(let inputStrings):
-            guard !inputStrings.isEmpty else { throw TranslationError(type: .missingInputStrings, additionalInfo: "Input strings cannot be empty.") }
+            guard !inputStrings.isEmpty else { throw TranslationError.missingInputStrings }
             return inputStrings
         }
     }
@@ -140,137 +149,109 @@ extension Translator {
 
 extension Translator {
     
+	///
+	/// Create a directory for disk cache.
+	///
+	private func createCacheDirectory() {
+		
+		do {
+			try fileManager.createDirectory(at: Constants.diskCacheDirectory, withIntermediateDirectories: true, attributes: [:])
+		} catch {
+			fatalError("Invalid disk cache directory.")
+		}
+	}
+	
     ///
-    /// Gets a translation set from local cache.
+    /// Get a translation set from cache.
     ///
-    /// - parameter targetLanguage: The alpha2 code of the language to get translations for.
-    /// - returns: A translation set for the target language, if available.
+    /// - parameter language: The ISO 639-1 code of the language to get translations for.
+    /// - returns: A translation set for the language, if available.
     ///
-    private func getCachedTranslationSet(for targetLanguage: String) -> TranslationSet? {
+    private func getCachedTranslationSet(for language: String) -> TranslationSet? {
         
-        guard let savedData = UserDefaults.standard.object(forKey: "\(Key.translationSet)_\(targetLanguage)") as? Data else { return nil }
-        return try? JSONDecoder().decode(TranslationSet.self, from: savedData)
+		guard let data = fileManager.contents(atPath: Constants.diskCacheDirectory.appendingPathComponent(language).path) else { return nil }
+		return try? JSONDecoder().decode(TranslationSet.self, from: data)
     }
     
     ///
-    /// Saves a translation set to local cache.
+    /// Cache a translation set.
     ///
-    /// - parameter translationSet: The translation set to save.
-    /// - parameter language: The alpha2 code for the language to save translations for.
+    /// - parameter translationSet: The translation set to cache.
     ///
     private func setCachedTranslationSet(_ translationSet: TranslationSet) {
         
         guard let data = try? JSONEncoder().encode(translationSet) else { return }
-        UserDefaults.standard.set(data, forKey: "\(Key.translationSet)_\(translationSet.language)")
+		
+		let filePath = Constants.diskCacheDirectory.appendingPathComponent(translationSet.language)
+		fileManager.createFile(atPath: filePath.path, contents: data)
     }
 }
 
 // MARK: - Translation -
 
 extension Translator {
-    
+
     ///
-    /// Translates all source strings into strings in the desired language. If the target language matches the source language, the source strings will be returned directly. If an available cache from a previous call to the Google Translate API satisfies the language and ID requirements, it will be used to avoid making an unessessary API call. If no translation set can satisfy the parameters, this method will reach out to Google Translate API and cache the response. Delegate method translator(_:didReceiveTranslationSet) will be called when a set is obtained.
+    /// Translate input strings to a translation set in the output language. This method uses caching to avoid making excess API calls. If the output language matches the input language, no translation is needed and the input strings will be returned. If a cached translation set from a previous API call satisfies the requirements, it will be returned. Otherwise, this method will reach out to Google Translate API and cache the result. This result can be handled with async/await, or with the delegate method translator(_:didCompletionTranslation).
     ///
-    /// - parameter targetLanguage: An optional alpha2 language code. If nil is passed here, the iOS setting language will be used. Nil is the default.
-    /// - parameter translationId: An optional ID for a translation set. If a local translation set with an ID greater than the minimum is not found, a new API call will be made. For example, a client could keep track of the last translationId used and only update it when changes have been made to the input strings to force a new translation. If no minimum ID is specified, any saved translation set matching the target language will be returned. On successful translation, the new translationId is saved to compare against next time. Nil is the default.
+    /// - parameter translationId: An optional ID for a translation set. A cached translation set must meet or exceed the supplied ID to be considered valid. For example, a client could keep track of the last ID used and only increment it when changes have been made to the input strings. If nil is supplied, any saved translation set matching the output language will be considered valid. Nil is the default.
     ///
-    public func updateTranslations(targetLanguage: String? = nil, translationId: Int? = nil) {
+	@discardableResult
+    public func updateTranslations(translationId: Int? = nil) async throws -> TranslationSet {
         
-        do {
-            inputStrings = try getInputStrings()
-            let targetLanguage = targetLanguage ?? settingsLanguage
-            let translationId = translationId ?? 0
-            
-            if targetLanguage == inputLanguage {
-                // Target language matches source language.
-                delegate?.translator(self, didEncounterLogEvent: #"Using source language "\#(targetLanguage)". Returning source strings."#)
-                let sourceTranslationSet = TranslationSet(id: translationId, language: targetLanguage, translations: inputStrings)
-                currentTranslationSet = sourceTranslationSet
-                delegate?.translator(self, didReceiveTranslationSet: sourceTranslationSet)
-                
-            } else if let savedTranslationSet = getCachedTranslationSet(for: targetLanguage) {
-                
-                if translationId > savedTranslationSet.id {
-                    // Translations are considered outdated based on minimum translation ID.
-                    delegate?.translator(self, didEncounterLogEvent: #"Outdated translation ID requires an update (\#(savedTranslationSet.id) -> \#(translationId)). Running Google translate for "\#(targetLanguage)"."#)
-                    googleTranslate(inputStrings, targetLanguage: targetLanguage, translationId: translationId)
-                } else if let missingInputStrings = savedTranslationSet.getMissingTranslations(in: inputStrings) {
-                    // Additional input strings have been found.
-                    delegate?.translator(self, didEncounterLogEvent: #"Additional input strings found since last translation (\#(missingInputStrings.keys). Running Google translate for "\#(targetLanguage)"."#)
-                    googleTranslate(inputStrings, targetLanguage: targetLanguage, translationId: translationId)
-                } else {
-                    // A saved set of translations satisfying *targetLanguage* and *minimumTranslationId* was found.
-                    delegate?.translator(self, didEncounterLogEvent: #"Found saved translations for "\#(targetLanguage)". ID = \#(savedTranslationSet.id)"#)
-                    currentTranslationSet = savedTranslationSet
-                    delegate?.translator(self, didReceiveTranslationSet: savedTranslationSet)
-                }
-                
-            } else {
-                // Translation ID was not outdated, but no saved translation set found. User could have changed to another new language.
-                delegate?.translator(self, didEncounterLogEvent: #"No saved translations found. Running Google translate for "\#(targetLanguage)"."#)
-                googleTranslate(inputStrings, targetLanguage: targetLanguage, translationId: translationId)
-            }
-            
-        } catch {
-            let error = error as? TranslationError ?? TranslationError(type: .unknown)
-            delegate?.translator(self, didEncounterError: error)
-        }
+		let inputStrings = try getInputStrings()
+		let translationId = translationId ?? 0
+		
+		if outputLanguage == inputLanguage {
+			// Input language matches output language.
+			delegate?.translator(self, didEncounterLogEvent: #"Input language "\#(outputLanguage)" matches output language "\#(outputLanguage)". Returning input strings."#)
+			let inputTranslationSet = TranslationSet(id: translationId, language: outputLanguage, translations: inputStrings)
+			currentTranslationSet = inputTranslationSet
+			delegate?.translator(self, didCompleteTranslation: .success(inputTranslationSet))
+			return inputTranslationSet
+			
+		} else if let savedTranslationSet = getCachedTranslationSet(for: outputLanguage) {
+			
+			if translationId > savedTranslationSet.id {
+				// The cached translation set is considered invalid based on translation ID.
+				delegate?.translator(self, didEncounterLogEvent: #"Provided translation ID (\#(translationId)) is higher than the cached translation set (\#(savedTranslationSet.id)). Performing translation for "\#(outputLanguage)"."#)
+				return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+				
+			} else if let missingInputStrings = savedTranslationSet.getMissingTranslations(in: inputStrings) {
+				// Additional input strings have been found.
+				delegate?.translator(self, didEncounterLogEvent: #"Cached translation set is missing some keys (\#(missingInputStrings.keys). Performing translation for "\#(outputLanguage)"."#)
+				return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+				
+			} else {
+				// A valid translation set was found in cache.
+				delegate?.translator(self, didEncounterLogEvent: #"Found cached translation set for "\#(outputLanguage)". Returning cached translations."#)
+				currentTranslationSet = savedTranslationSet
+				delegate?.translator(self, didCompleteTranslation: .success(savedTranslationSet))
+				return savedTranslationSet
+			}
+		} else {
+			// No cached translation set was found for the output language.
+			delegate?.translator(self, didEncounterLogEvent: #"No cached translation set found. Performing translation for "\#(outputLanguage)"."#)
+			return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+		}
     }
     
     ///
-    /// Sends API request to Google Translate.
+    /// Send an API request to perform translation.
     ///
-    /// - parameter sourceStrings: The raw strings to translate.
-    /// - parameter targetLanguage: The alpha2 code of the language to translate to.
-    /// - parameter minimumTranslationId: The translation ID.
+    /// - parameter inputStrings: The text to translate.
+    /// - parameter outputLanguage: The ISO 639-1 code for the output language.
+    /// - parameter translationId: The translation ID.
     ///
-    private func googleTranslate(_ inputStrings: [String: String], targetLanguage: String, translationId: Int) {
-        
-        let sortedInputValues = inputStrings.sorted { $0.value < $1.value }.map { $0.value }
-        translationService.getGoogleTranslation(for: sortedInputValues, inputLanguage: inputLanguage, targetLanguage: targetLanguage, completion: { result in
-            
-            DispatchQueue.main.async {
-                switch result {
-                    
-                case .success(let translationResponse):
-                    self.delegate?.translator(self, didEncounterLogEvent: "Google Translate: SUCCESS")
-                    self.handleTranslationResponse(translationResponse, targetLanguage: targetLanguage, translationId: translationId)
-                    
-                case .failure(let error):
-                    self.delegate?.translator(self, didEncounterLogEvent: "Google Translate: FAILURE")
-                    self.delegate?.translator(self, didEncounterError: error)
-                }
-            }
-        })
-    }
-    
-    ///
-    /// Handles a response from Google Translate API.
-    ///
-    /// - parameter response: The decoded API response.
-    /// - parameter targetLanguage: The language that the source strings were translated to.
-    ///
-    private func handleTranslationResponse(_ response: TranslationService.GoogleTranslateResponse, targetLanguage: String, translationId: Int) {
-        
-        let sortedKeys = inputStrings.sorted { $0.value < $1.value }.map { $0.key }
-        
-        guard sortedKeys.count == response.data.translations.count else {
-            delegate?.translator(self, didEncounterError: TranslationError(type: .incompleteTranslation))
-            return
-        }
-        
-        var translations = [String: String]()
-        for (index, key) in sortedKeys.enumerated() {
-            
-            guard response.data.translations.count > index else { break }
-            translations[key] = response.data.translations[index].translatedText
-        }
-        
-        let translationSet = TranslationSet(id: translationId, language: targetLanguage, translations: translations)
-        setCachedTranslationSet(translationSet)
-        currentTranslationSet = translationSet
-        
-        delegate?.translator(self, didReceiveTranslationSet: translationSet)
+	private func performTranslation(_ inputStrings: [String: String], outputLanguage: String, translationId: Int) async throws -> TranslationSet {
+		
+		let translations = try await translationService.performTranslation(inputStrings: inputStrings, inputLanguage: inputLanguage, outputLanguage: outputLanguage)
+		
+		let translationSet = TranslationSet(id: translationId, language: outputLanguage, translations: translations)
+		setCachedTranslationSet(translationSet)
+		currentTranslationSet = translationSet
+		
+		delegate?.translator(self, didCompleteTranslation: .success(translationSet))
+		return translationSet
     }
 }

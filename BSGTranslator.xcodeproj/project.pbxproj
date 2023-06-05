@@ -9,13 +9,11 @@
 /* Begin PBXBuildFile section */
 		7A7F09C026D1C919006206A3 /* BSGTranslator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A5459C926D1C0F4009578CC /* BSGTranslator.framework */; };
 		7AED1C552728C3210032ACB5 /* TranslationSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AED1C542728C3210032ACB5 /* TranslationSet.swift */; };
-		7AED1C572728C6BE0032ACB5 /* Key.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AED1C562728C6BE0032ACB5 /* Key.swift */; };
 		7AED1C5A2728E9FD0032ACB5 /* TranslationSetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AED1C582728E80F0032ACB5 /* TranslationSetTests.swift */; };
 		7AED1C5D2728EEA50032ACB5 /* TranslatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AED1C5B2728ED620032ACB5 /* TranslatorTests.swift */; };
 		7AF9281B27287F2700E54A31 /* Translator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9281A27287F2600E54A31 /* Translator.swift */; };
 		7AF9281D2728807900E54A31 /* TranslationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9281C2728807900E54A31 /* TranslationService.swift */; };
 		7AF9281F272880B200E54A31 /* TranslationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9281E272880B200E54A31 /* TranslationError.swift */; };
-		7AF928212728904000E54A31 /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF928202728904000E54A31 /* Result.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -34,13 +32,11 @@
 		7A7F09BB26D1C919006206A3 /* BSGTranslatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BSGTranslatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A7F09BF26D1C919006206A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7AED1C542728C3210032ACB5 /* TranslationSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationSet.swift; sourceTree = "<group>"; };
-		7AED1C562728C6BE0032ACB5 /* Key.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Key.swift; sourceTree = "<group>"; };
 		7AED1C582728E80F0032ACB5 /* TranslationSetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationSetTests.swift; sourceTree = "<group>"; };
 		7AED1C5B2728ED620032ACB5 /* TranslatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslatorTests.swift; sourceTree = "<group>"; };
 		7AF9281A27287F2600E54A31 /* Translator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Translator.swift; sourceTree = "<group>"; };
 		7AF9281C2728807900E54A31 /* TranslationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationService.swift; sourceTree = "<group>"; };
 		7AF9281E272880B200E54A31 /* TranslationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationError.swift; sourceTree = "<group>"; };
-		7AF928202728904000E54A31 /* Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,9 +83,7 @@
 				7AF9281E272880B200E54A31 /* TranslationError.swift */,
 				7AF9281A27287F2600E54A31 /* Translator.swift */,
 				7AF9281C2728807900E54A31 /* TranslationService.swift */,
-				7AF928202728904000E54A31 /* Result.swift */,
 				7AED1C542728C3210032ACB5 /* TranslationSet.swift */,
-				7AED1C562728C6BE0032ACB5 /* Key.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -219,9 +213,7 @@
 				7AF9281B27287F2700E54A31 /* Translator.swift in Sources */,
 				7AF9281F272880B200E54A31 /* TranslationError.swift in Sources */,
 				7AED1C552728C3210032ACB5 /* TranslationSet.swift in Sources */,
-				7AF928212728904000E54A31 /* Result.swift in Sources */,
 				7AF9281D2728807900E54A31 /* TranslationService.swift in Sources */,
-				7AED1C572728C6BE0032ACB5 /* Key.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
