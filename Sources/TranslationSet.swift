@@ -20,19 +20,19 @@ public struct TranslationSet: Codable {
 extension TranslationSet {
     
     ///
-    /// Returns any missing translations from the specified set.
+    /// Return any missing translations from the specified set.
     ///
-    /// - parameter queryTranslation: The translations to check for existance.
+    /// - parameter translations: The translations to check for existance.
     /// - returns: A dictionary with all missing translations, or nil.
     ///
-    func getMissingTranslations(in testTranslations: [String: String]) -> [String: String]? {
+    func getMissingTranslations(from translations: [String: String]) -> [String: String]? {
         
-        let missingTranslations = testTranslations.filter { self.translations[$0.key] == nil }
+        let missingTranslations = translations.filter { self.translations[$0.key] == nil }
         return missingTranslations.isEmpty ? nil : missingTranslations
     }
 }
 
-// MARK: - CustomStringConvertible -
+// MARK: - Display -
 
 extension TranslationSet: CustomStringConvertible {
     

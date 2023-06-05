@@ -8,23 +8,25 @@
 import Foundation
 
 ///
-/// Used for making calls to and getting data from Google Translate API.
+/// A service for performing translation with Google Translate API.
 ///
 public class TranslationService {
     
-	typealias GoogleTranslateResponseResultHandler = (Result<TranslationService.GoogleTranslateResponse, TranslationError>) -> Void
-	typealias DataResultHandler = (Result<Data, TranslationError>) -> Void
+	// MARK: - Constants -
+	
+	private struct Constants {
+		/// The host of the Google Translate API.
+		static let apiHost = "google-translate1.p.rapidapi.com"
+	}
 	
     // MARK: - Properties -
     
-    /// The host of the Google Translate API.
-    private let apiHost = "google-translate1.p.rapidapi.com"
-    /// User-specific API key given by RapiAPI.
+    /// API key for RapiAPI.
     private let apiKey: String
     /// Session used for all API calls.
-    private lazy var session = URLSession.shared
+	private lazy var session = URLSession(configuration: .ephemeral)
     
-    // MARK: - Setup -
+    // MARK: - Initializers -
     
     init(apiKey: String) {
         self.apiKey = apiKey
@@ -36,73 +38,69 @@ public class TranslationService {
 extension TranslationService {
     
     ///
-    /// Translates an array of input strings into another language.
-    /// - warning: This method passes all input strings as a single parameter. Separating them was causing results to cut off ~100.
+    /// Translate input strings into another language.
+    /// - note: This method passes all input strings as a single parameter. Separating them was causing results to cut off ~100.
     ///
-    /// - parameter inputStrings: Strings in the input language to translate.
-    /// - parameter inputLanguage: The alpha2 code for the language of *inputStrings*.
-    /// - parameter targetLanguage: The language to translate to.
-    /// - parameter completion: The completion handler.
+    /// - parameter inputStrings: Text to translate.
+    /// - parameter inputLanguage: The ISO 639-1 code for the input language.
+    /// - parameter outputLanguage: The language to translate to.
+    /// - returns: A set of output strings.
     ///
-    func getGoogleTranslation(for inputStrings: [String], inputLanguage: String = "en", targetLanguage: String, completion: GoogleTranslateResponseResultHandler?) {
-
-        var parameters = "source=\(inputLanguage)&target=\(targetLanguage)"
-        parameters = inputStrings.reduce(parameters) { return $0 + "&q=\($1)" }
+	func performTranslation(inputStrings: [String: String], inputLanguage: String, outputLanguage: String) async throws -> [String: String] {
+		
+		let sortedInputValues = inputStrings.sorted { $0.value < $1.value }.map { $0.value }
+		
+        var parameters = "source=\(inputLanguage)&target=\(outputLanguage)"
+		parameters = sortedInputValues.reduce(parameters) { return $0 + "&q=\($1)" }
        
-        guard let url = URL(string: "https://google-translate1.p.rapidapi.com/language/translate/v2"), let postData = parameters.data(using: String.Encoding.utf8) else {
-            completion?(.failure(TranslationError(type: .invalidParameters)))
-            return
+        guard let url = URL(string: "https://google-translate1.p.rapidapi.com/language/translate/v2"), let body = parameters.data(using: String.Encoding.utf8) else {
+            throw TranslationError.invalidParameters
         }
+		
+		var request = URLRequest(url: url)
+		request.httpMethod = "POST"
+		request.allHTTPHeaderFields = ["x-rapidapi-host": Constants.apiHost, "x-rapidapi-key": apiKey, "content-type": "application/x-www-form-urlencoded"]
+		request.httpBody = body
     
-        performRequest(url: url, body: postData, apiKey: apiKey, completion: { result in
-            
-            switch result {
-                
-            case .success(let data):
-                do {
-                    let response = try JSONDecoder().decode(GoogleTranslateResponse.self, from: data)
-                    completion?(.success(response))
-                } catch {
-                    let errorResponse = try? JSONDecoder().decode(GoogleTranslateErrorResponse.self, from: data)
-                    completion?(.failure(TranslationError(type: .failedDecoding, additionalInfo: errorResponse?.message)))
-                }
-                
-            case .failure(let error):
-                completion?(.failure(error))
-            }
-        })
+		let data = try await performRequest(request)
+		
+		guard let result = try? JSONDecoder().decode(GoogleTranslateResponse.self, from: data) else {
+			throw TranslationError.failedDecoding
+		}
+		
+		let sortedKeys = inputStrings.sorted { $0.value < $1.value }.map { $0.key }
+		
+		guard sortedKeys.count == result.data.translations.count else {
+			throw TranslationError.incompleteTranslation
+		}
+		
+		var translations = [String: String]()
+		for (index, key) in sortedKeys.enumerated() where result.data.translations.count > index {
+			translations[key] = result.data.translations[index].translatedText
+		}
+		
+		return translations
     }
     
     ///
-    /// Generic method for making an API call to any endpoint.
-    /// - note: Currently all endpoints use Rapid API key.
+    /// Perform an API call.
     ///
-    /// - parameter url: The endpoint of the call.
-    /// - parameter body: Optional additional info.
-    /// - parameter apiKey: The key from API provider.
-	/// - parameter completion: The completion handler.
+    /// - parameter request: The request to perform.
+	/// - returns: The resulting data.
     ///
-    private func performRequest(url: URL, body: Data? = nil, apiKey: String, completion: DataResultHandler?) {
+	private func performRequest(_ request: URLRequest) async throws -> Data {
         
-        let request = NSMutableURLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
-        request.httpMethod = "POST"
-        request.allHTTPHeaderFields = ["x-rapidapi-host": apiHost, "x-rapidapi-key": apiKey, "content-type": "application/x-www-form-urlencoded"]
-        request.httpBody = body
-        
-        let dataTask = session.dataTask(with: request as URLRequest, completionHandler: { data, response, error in
-            
-            do {
-                if let error = error { throw error }
-                guard let data = data else { throw TranslationError(type: .failedTranslation) }
-                
-                completion?(.success(data))
-                
-            } catch {
-                completion?(.failure(TranslationError(type: .failedTranslation, additionalInfo: error.localizedDescription)))
-            }
-        })
-
-        dataTask.resume()
+        let (data, response) = try await session.data(for: request)
+		
+		guard let response = response as? HTTPURLResponse else {
+			throw TranslationError.invalidResponse(statusCode: nil)
+		}
+				
+		guard response.statusCode == 200 else {
+			throw TranslationError.invalidResponse(statusCode: response.statusCode)
+		}
+		
+		return data
     }
 }
 
@@ -120,9 +118,5 @@ extension TranslationService {
 
     struct GoogleTranslation: Decodable {
         let translatedText: String
-    }
-    
-    struct GoogleTranslateErrorResponse: Decodable {
-        let message: String
     }
 }

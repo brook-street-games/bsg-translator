@@ -7,21 +7,43 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		7A6665392704083100338451 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6665382704083100338451 /* AppDelegate.swift */; };
-		7A66653B2704083100338451 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A66653A2704083100338451 /* SceneDelegate.swift */; };
+		4AEA4D4A2A2A4E52008A2052 /* BSGTranslator.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 7AAB12EA272877FF00C93FBC /* BSGTranslator.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4AEA4D552A2A8ACB008A2052 /* PulseButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AEA4D542A2A8ACB008A2052 /* PulseButtonStyle.swift */; };
+		4AFD26EB2A297D2E009A4C9C /* SampleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFD26EA2A297D2E009A4C9C /* SampleApp.swift */; };
+		4AFD26ED2A297D5C009A4C9C /* SampleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFD26EC2A297D5C009A4C9C /* SampleView.swift */; };
+		4AFD26EF2A297DDC009A4C9C /* SampleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFD26EE2A297DDC009A4C9C /* SampleViewModel.swift */; };
+		4AFD26F12A2A28B7009A4C9C /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFD26F02A2A28B7009A4C9C /* Language.swift */; };
+		4AFD26F32A2A28CF009A4C9C /* Fruit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AFD26F22A2A28CF009A4C9C /* Fruit.swift */; };
+		4AFD26F52A2A33EC009A4C9C /* Lexend.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4AFD26F42A2A33EC009A4C9C /* Lexend.ttf */; };
 		7AAB12EB272877FF00C93FBC /* BSGTranslator.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7AAB12EA272877FF00C93FBC /* BSGTranslator.framework */; };
-		7AED1C532728A7570032ACB5 /* Test.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7AED1C522728A7570032ACB5 /* Test.strings */; };
-		7AF72F1F27287632007CB778 /* TranslationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF72F1E27287632007CB778 /* TranslationViewController.swift */; };
+		7AED1C532728A7570032ACB5 /* Sample.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7AED1C522728A7570032ACB5 /* Sample.strings */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		4AFD26F62A2A4E30009A4C9C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4AEA4D4A2A2A4E52008A2052 /* BSGTranslator.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		4AEA4D542A2A8ACB008A2052 /* PulseButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PulseButtonStyle.swift; sourceTree = "<group>"; };
+		4AFD26EA2A297D2E009A4C9C /* SampleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleApp.swift; sourceTree = "<group>"; };
+		4AFD26EC2A297D5C009A4C9C /* SampleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleView.swift; sourceTree = "<group>"; };
+		4AFD26EE2A297DDC009A4C9C /* SampleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleViewModel.swift; sourceTree = "<group>"; };
+		4AFD26F02A2A28B7009A4C9C /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
+		4AFD26F22A2A28CF009A4C9C /* Fruit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Fruit.swift; sourceTree = "<group>"; };
+		4AFD26F42A2A33EC009A4C9C /* Lexend.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = Lexend.ttf; sourceTree = "<group>"; };
 		7A6665352704083100338451 /* BSGTranslatorSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BSGTranslatorSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7A6665382704083100338451 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		7A66653A2704083100338451 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		7A6665462704083600338451 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7AAB12EA272877FF00C93FBC /* BSGTranslator.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = BSGTranslator.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		7AED1C522728A7570032ACB5 /* Test.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Test.strings; sourceTree = "<group>"; };
-		7AF72F1E27287632007CB778 /* TranslationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationViewController.swift; sourceTree = "<group>"; };
+		7AED1C522728A7570032ACB5 /* Sample.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; path = Sample.strings; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -36,10 +58,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A8681482A2D77B8003A85E6 /* Screens */ = {
+			isa = PBXGroup;
+			children = (
+				4AFD26EC2A297D5C009A4C9C /* SampleView.swift */,
+				4AFD26EE2A297DDC009A4C9C /* SampleViewModel.swift */,
+			);
+			path = Screens;
+			sourceTree = "<group>";
+		};
+		4AEA4D532A2A8411008A2052 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				4AFD26F22A2A28CF009A4C9C /* Fruit.swift */,
+				4AFD26F02A2A28B7009A4C9C /* Language.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		7A66652C2704083100338451 = {
 			isa = PBXGroup;
 			children = (
-				7A6665462704083600338451 /* Info.plist */,
 				7AB375E32708088F00F472A4 /* Assets */,
 				7A6665372704083100338451 /* Sources */,
 				7A6665362704083100338451 /* Products */,
@@ -58,9 +97,10 @@
 		7A6665372704083100338451 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
-				7A6665382704083100338451 /* AppDelegate.swift */,
-				7A66653A2704083100338451 /* SceneDelegate.swift */,
-				7AB37630270821BB00F472A4 /* UI */,
+				4AFD26EA2A297D2E009A4C9C /* SampleApp.swift */,
+				4AEA4D542A2A8ACB008A2052 /* PulseButtonStyle.swift */,
+				4A8681482A2D77B8003A85E6 /* Screens */,
+				4AEA4D532A2A8411008A2052 /* Models */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -76,17 +116,11 @@
 		7AB375E32708088F00F472A4 /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				7AED1C522728A7570032ACB5 /* Test.strings */,
+				7A6665462704083600338451 /* Info.plist */,
+				4AFD26F42A2A33EC009A4C9C /* Lexend.ttf */,
+				7AED1C522728A7570032ACB5 /* Sample.strings */,
 			);
 			path = Assets;
-			sourceTree = "<group>";
-		};
-		7AB37630270821BB00F472A4 /* UI */ = {
-			isa = PBXGroup;
-			children = (
-				7AF72F1E27287632007CB778 /* TranslationViewController.swift */,
-			);
-			path = UI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -99,6 +133,7 @@
 				7A6665312704083100338451 /* Sources */,
 				7A6665322704083100338451 /* Frameworks */,
 				7A6665332704083100338451 /* Resources */,
+				4AFD26F62A2A4E30009A4C9C /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -151,7 +186,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7AED1C532728A7570032ACB5 /* Test.strings in Resources */,
+				4AFD26F52A2A33EC009A4C9C /* Lexend.ttf in Resources */,
+				7AED1C532728A7570032ACB5 /* Sample.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -162,9 +198,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7A6665392704083100338451 /* AppDelegate.swift in Sources */,
-				7A66653B2704083100338451 /* SceneDelegate.swift in Sources */,
-				7AF72F1F27287632007CB778 /* TranslationViewController.swift in Sources */,
+				4AEA4D552A2A8ACB008A2052 /* PulseButtonStyle.swift in Sources */,
+				4AFD26F32A2A28CF009A4C9C /* Fruit.swift in Sources */,
+				4AFD26ED2A297D5C009A4C9C /* SampleView.swift in Sources */,
+				4AFD26F12A2A28B7009A4C9C /* Language.swift in Sources */,
+				4AFD26EB2A297D2E009A4C9C /* SampleApp.swift in Sources */,
+				4AFD26EF2A297DDC009A4C9C /* SampleViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,7 +262,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -279,7 +318,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
@@ -297,12 +336,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9C8XCSNZZ;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = Assets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BSGTranslatorSample;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -324,12 +364,13 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K9C8XCSNZZ;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_FILE = Assets/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BSGTranslatorSample;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
