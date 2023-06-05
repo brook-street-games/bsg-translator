@@ -27,7 +27,7 @@ class SampleViewModel: ObservableObject {
 	/// Used to control ripple animation.
 	@Published var animatingFruitKeys = Set<String>()
 	/// Translates text between languages.
-	private lazy var translator = Translator(apiKey: "8dca911293msheea0df47d6acb7fp1ce362jsnad3cfbb88273", inputLanguage: "en", inputType: .stringsFile(fileName: "Sample"), delegate: self)
+	private lazy var translator = Translator(apiKey: "API_KEY", inputLanguage: "en", inputType: .stringsFile(fileName: "Sample"), delegate: self)
 	
 	let fruits = [
 		Fruit(key: "apple", symbol: "🍎"),
