@@ -7,8 +7,8 @@
 
 struct Language: Identifiable, Equatable {
 	
-	let alpha2: String
+	let code: String
 	let name: String
 	
-	var id: String { return alpha2 }
+	var id: String { return code }
 }

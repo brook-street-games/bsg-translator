@@ -47,18 +47,19 @@ class SampleViewModel: ObservableObject {
 	]
 	
 	let languages = [
-		Language(alpha2: "en", name: "English"),
-		Language(alpha2: "es", name: "Spanish"),
-		Language(alpha2: "it", name: "Italian"),
-		Language(alpha2: "de", name: "German"),
-		Language(alpha2: "ja", name: "Japanese"),
-		Language(alpha2: "ar", name: "Arabic")
+		Language(code: "en", name: "English"),
+		Language(code: "es", name: "Spanish"),
+		Language(code: "it", name: "Italian"),
+		Language(code: "de", name: "German"),
+		Language(code: "ja", name: "Japanese"),
+		Language(code: "ar", name: "Arabic")
 	]
 	
 	// MARK: - Initializers -
 	
 	init() {
 		language = languages[0]
+		debugPrint("Disk cache directory: \(Translator.Constants.diskCacheDirectory)")
 	}
 }
 
@@ -69,9 +70,12 @@ extension SampleViewModel {
 	func selectLanguage(_ language: Language) {
 		
 		guard language != self.language else { return }
-		
 		self.language = language
-		translator.updateTranslations(targetLanguage: language.alpha2)
+		translator.outputLanguage = language.code
+		
+		Task {
+			try await translator.updateTranslations()
+		}
 	}
 }
 
@@ -79,14 +83,19 @@ extension SampleViewModel {
 
 extension SampleViewModel: TranslatorDelegate {
 	
-	func translator(_ translator: Translator, didReceiveTranslationSet translationSet: TranslationSet) {
+	func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>) {
 		
-		print("Translation success.")
-		animateFruit()
+		switch result {
+		case .success:
+			print("Translation success.")
+			animateFruit()
+		case .failure(let error):
+			print("Translation failure. \(error).")
+		}
 	}
 	
-	func translator(_ translator: Translator, didEncounterError error: TranslationError) {
-		print("Translation error: \(error).")
+	func translator(_ translator: Translator, didEncounterLogEvent logEvent: String) {
+		print(logEvent)
 	}
 }
 
