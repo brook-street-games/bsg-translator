@@ -80,6 +80,7 @@ func translator(_ translator: Translator, didCompleteTranslation result: Result<
 		// Handle error.
 	}
 }
+```
 
 #### Access Translations
 
@@ -91,7 +92,7 @@ label.text = translator.translate("pineapple")
 
 #### Translation ID
 
-A translation ID can be used to force a new API call when string values change. For example, if an application is being translated to Italian, and the english translation for pineapple was changed from "Pineapple" to "Spikey Fruit" in a new version, users with the previous version would still return the cached value "Ananas". Passing a translation ID of 2 (assuming nil or a lower value was previously passed) would force a translation and correctly return "Frutto Appuntito".
+A translation ID can be used to force a new API call when string values change. For example, if an application is being translated to Italian, and the english translation for pineapple was changed from "pineapple" to "spikey fruit" in a new version, users with the previous version would still return the cached value "ananas". Passing a translation ID of 2 (assuming nil or a lower value was previously passed) would force a translation and correctly return "frutto appuntito".
 
 ```swift
 translator.updateTranslations(translationId: 2)
@@ -120,7 +121,7 @@ Task {
 * **All**. Capitalize all letters.
        
 ```swift
-label.text = translator.translate("banana", capitalization: .all)
+label.text = translator.translate("pineapple", capitalization: .all)
 ```
 
 ## Author
