@@ -105,9 +105,8 @@ extension SampleView {
 					}
 					.overlay {
 						ProgressView()
-							.brightness(2)
 							.opacity(isLoading ? 1 : 0)
-							.foregroundColor(Color(uiColor: .systemBackground))
+							.tint(Color(uiColor: .systemBackground))
 					}
 			})
 			.buttonStyle(PulseButtonStyle())
