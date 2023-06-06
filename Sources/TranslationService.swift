@@ -24,7 +24,7 @@ public class TranslationService {
     /// API key for RapiAPI.
     private let apiKey: String
     /// Session used for all API calls.
-	private lazy var session = URLSession(configuration: .ephemeral)
+	private lazy var session = URLSession.shared
     
     // MARK: - Initializers -
     
@@ -57,7 +57,7 @@ extension TranslationService {
             throw TranslationError.invalidParameters
         }
 		
-		var request = URLRequest(url: url)
+		var request = URLRequest(url: url, cachePolicy: .useProtocolCachePolicy, timeoutInterval: 10.0)
 		request.httpMethod = "POST"
 		request.allHTTPHeaderFields = ["x-rapidapi-host": Constants.apiHost, "x-rapidapi-key": apiKey, "content-type": "application/x-www-form-urlencoded"]
 		request.httpBody = body

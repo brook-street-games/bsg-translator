@@ -76,6 +76,14 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		4AF66AE42A2FB00E0029F1AD /* Modifiers */ = {
+			isa = PBXGroup;
+			children = (
+				4AEA4D542A2A8ACB008A2052 /* PulseButtonStyle.swift */,
+			);
+			path = Modifiers;
+			sourceTree = "<group>";
+		};
 		7A66652C2704083100338451 = {
 			isa = PBXGroup;
 			children = (
@@ -98,7 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				4AFD26EA2A297D2E009A4C9C /* SampleApp.swift */,
-				4AEA4D542A2A8ACB008A2052 /* PulseButtonStyle.swift */,
+				4AF66AE42A2FB00E0029F1AD /* Modifiers */,
 				4A8681482A2D77B8003A85E6 /* Screens */,
 				4AEA4D532A2A8411008A2052 /* Models */,
 			);

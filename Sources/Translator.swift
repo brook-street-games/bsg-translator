@@ -197,42 +197,49 @@ extension Translator {
     /// - parameter translationId: An optional ID for a translation set. A cached translation set must meet or exceed the supplied ID to be considered valid. For example, a client could keep track of the last ID used and only increment it when changes have been made to the input strings. If nil is supplied, any saved translation set matching the output language will be considered valid. Nil is the default.
     ///
 	@discardableResult
-    public func updateTranslations(translationId: Int? = nil) async throws -> TranslationSet {
+    @MainActor public func updateTranslations(translationId: Int? = nil) async throws -> TranslationSet {
         
-		let inputStrings = try getInputStrings()
-		let translationId = translationId ?? 0
-		
-		if outputLanguage == inputLanguage {
-			// Input language matches output language.
-			delegate?.translator(self, didEncounterLogEvent: #"Input language "\#(outputLanguage)" matches output language "\#(outputLanguage)". Returning input strings."#)
-			let inputTranslationSet = TranslationSet(id: translationId, language: outputLanguage, translations: inputStrings)
-			currentTranslationSet = inputTranslationSet
-			delegate?.translator(self, didCompleteTranslation: .success(inputTranslationSet))
-			return inputTranslationSet
+		do {
+			let inputStrings = try getInputStrings()
+			let translationId = translationId ?? 0
 			
-		} else if let savedTranslationSet = getCachedTranslationSet(for: outputLanguage) {
-			
-			if translationId > savedTranslationSet.id {
-				// The cached translation set is considered invalid based on translation ID.
-				delegate?.translator(self, didEncounterLogEvent: #"Provided translation ID (\#(translationId)) is higher than the cached translation set (\#(savedTranslationSet.id)). Performing translation for "\#(outputLanguage)"."#)
-				return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+			if outputLanguage == inputLanguage {
+				// Input language matches output language.
+				delegate?.translator(self, didEncounterLogEvent: #"Input language "\#(outputLanguage)" matches output language "\#(outputLanguage)". Returning input strings."#)
+				let inputTranslationSet = TranslationSet(id: translationId, language: outputLanguage, translations: inputStrings)
+				currentTranslationSet = inputTranslationSet
+				delegate?.translator(self, didCompleteTranslation: .success(inputTranslationSet))
+				return inputTranslationSet
 				
-			} else if let missingInputStrings = savedTranslationSet.getMissingTranslations(from: inputStrings) {
-				// Additional input strings have been found.
-				delegate?.translator(self, didEncounterLogEvent: #"Cached translation set is missing some keys (\#(missingInputStrings.keys). Performing translation for "\#(outputLanguage)"."#)
-				return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+			} else if let savedTranslationSet = getCachedTranslationSet(for: outputLanguage) {
 				
+				if translationId > savedTranslationSet.id {
+					// The cached translation set is considered invalid based on translation ID.
+					delegate?.translator(self, didEncounterLogEvent: #"Provided translation ID (\#(translationId)) is higher than the cached translation set (\#(savedTranslationSet.id)). Performing translation for "\#(outputLanguage)"."#)
+					return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+					
+				} else if let missingInputStrings = savedTranslationSet.getMissingTranslations(from: inputStrings) {
+					// Additional input strings have been found.
+					delegate?.translator(self, didEncounterLogEvent: #"Cached translation set is missing some keys (\#(missingInputStrings.keys). Performing translation for "\#(outputLanguage)"."#)
+					return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+					
+				} else {
+					// A valid translation set was found in cache.
+					delegate?.translator(self, didEncounterLogEvent: #"Found cached translation set for "\#(outputLanguage)". Returning cached translations."#)
+					currentTranslationSet = savedTranslationSet
+					delegate?.translator(self, didCompleteTranslation: .success(savedTranslationSet))
+					return savedTranslationSet
+				}
 			} else {
-				// A valid translation set was found in cache.
-				delegate?.translator(self, didEncounterLogEvent: #"Found cached translation set for "\#(outputLanguage)". Returning cached translations."#)
-				currentTranslationSet = savedTranslationSet
-				delegate?.translator(self, didCompleteTranslation: .success(savedTranslationSet))
-				return savedTranslationSet
+				// No cached translation set was found for the output language.
+				delegate?.translator(self, didEncounterLogEvent: #"No cached translation set found. Performing translation for "\#(outputLanguage)"."#)
+				return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
 			}
-		} else {
-			// No cached translation set was found for the output language.
-			delegate?.translator(self, didEncounterLogEvent: #"No cached translation set found. Performing translation for "\#(outputLanguage)"."#)
-			return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+		} catch {
+			
+			let error = error as? TranslationError ?? TranslationError.unknown
+			delegate?.translator(self, didCompleteTranslation: .failure(error))
+			throw error
 		}
     }
     

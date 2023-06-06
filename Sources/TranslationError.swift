@@ -29,7 +29,7 @@ public enum TranslationError: Error, CustomStringConvertible {
 		case .invalidParameters: return "Invalid parameters in API request."
 		case .invalidResponse(let statusCode):
 			var description = "Invalid response."
-			if let statusCode { description += "Status code \(statusCode)." }
+			if let statusCode { description += " Status code \(statusCode)." }
 			return description
 		case .incompleteTranslation: return "Trnalsation was started but could not complete."
 		case .failedDecoding: return "Failed to decode API response."

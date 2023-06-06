@@ -12,6 +12,14 @@ import SwiftUI
 ///
 struct SampleView: View {
 	
+	// MARK: - Constants -
+	
+	struct Constants {
+		
+		static let alertTitle = "Woah"
+		static let alertMessage = "You need an API_KEY to translate text. See instructions in the README to get one."
+	}
+	
 	// MARK: - Properties -
 	
 	@ObservedObject var viewModel: SampleViewModel
@@ -44,8 +52,15 @@ struct SampleView: View {
 			.scrollIndicators(.hidden)
 		}
 		.padding()
+		.alert(Constants.alertTitle, isPresented: $viewModel.alertIsPresented, actions: {
+			EmptyView()
+		}, message: {
+			Text(Constants.alertMessage)
+		})
 	}
 }
+
+// MARK: - Views -
 
 extension SampleView {
 	
@@ -70,20 +85,29 @@ extension SampleView {
 		
 		let language: Language
 		@ObservedObject var viewModel: SampleViewModel
-		private var isSelected: Bool { (viewModel.language == language) }
+		private var isSelected: Bool { viewModel.language == language && viewModel.pendingLanguage == nil }
+		private var isLoading: Bool { viewModel.pendingLanguage == language }
 		
 		var body: some View {
 			
 			Button(action: {
 				viewModel.selectLanguage(language)
 			}, label: {
+				
 				Text(viewModel.displayValue(for: language))
+					.opacity(isLoading ? 0 : 1)
 					.font(Font.custom("Lexend", size: 24))
 					.foregroundColor(Color(uiColor: .systemBackground))
 					.padding()
 					.background {
 						RoundedRectangle(cornerRadius: 10)
 							.foregroundColor(Color(uiColor: isSelected ? .systemGreen : .label))
+					}
+					.overlay {
+						ProgressView()
+							.brightness(2)
+							.opacity(isLoading ? 1 : 0)
+							.foregroundColor(Color(uiColor: .systemBackground))
 					}
 			})
 			.buttonStyle(PulseButtonStyle())
