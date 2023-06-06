@@ -38,7 +38,7 @@ public class Translator {
     
     /// The ISO 639-1 code of the input language. https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes.
     private(set) public var inputLanguage: String
-	/// The ISO 639-1 code of the output language. The default value is the language set in iOS settings.
+	/// The ISO 639-1 code of the output language. The default value is the language set in iOS settings. When this value is changed, *updateTranslations(_:)* must be called.
 	public var outputLanguage: String
 	/// Optional delegate method handler.
 	public weak var delegate: TranslatorDelegate?
@@ -62,14 +62,14 @@ public class Translator {
     /// - parameter apiKey: An API key for Google Translate API. See the README for instructions on how to get one.
     /// - parameter inputLanguage: The ISO 639-1 code of the input language. https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes.
     /// - parameter inputType: Determines the source of input strings.
+	/// - parameter outputLanguage: The ISO 639-1 code of the output language. The default value is the language set in iOS settings.
     /// - parameter delegate: Optional delegate method handler.
     ///
-    public init(apiKey: String, inputLanguage: String, inputType: InputType, delegate: TranslatorDelegate? = nil) {
+	public init(apiKey: String, inputLanguage: String, inputType: InputType, outputLanguage: String = String(Locale.preferredLanguages.first!.prefix(2)), delegate: TranslatorDelegate? = nil) {
         
         self.inputLanguage = inputLanguage
-		// Default to iOS settings language.
-		self.outputLanguage = String(Locale.preferredLanguages.first!.prefix(2))
-        self.inputType = inputType
+		self.inputType = inputType
+		self.outputLanguage = outputLanguage
         self.delegate = delegate
         self.translationService = TranslationService(apiKey: apiKey)
 		
@@ -191,6 +191,17 @@ extension Translator {
 
 extension Translator {
 
+	///
+	/// Translate input strings to a translation set in the output language. This method uses caching to avoid making excess API calls. If the output language matches the input language, no translation is needed and the input strings will be returned. If a cached translation set from a previous API call satisfies the requirements, it will be returned. Otherwise, this method will reach out to Google Translate API and cache the result. This result can be handled with async/await, or with the delegate method translator(_:didCompletionTranslation).
+	///
+	/// - parameter translationId: An optional ID for a translation set. A cached translation set must meet or exceed the supplied ID to be considered valid. For example, a client could keep track of the last ID used and only increment it when changes have been made to the input strings. If nil is supplied, any saved translation set matching the output language will be considered valid. Nil is the default.
+	///
+	public func updateTranslations(translationId: Int? = nil) {
+		
+		guard delegate != nil else { fatalError("Translator must have a delegate to use this method.") }
+		Task { try await updateTranslations(translationId: translationId) }
+	}
+	
     ///
     /// Translate input strings to a translation set in the output language. This method uses caching to avoid making excess API calls. If the output language matches the input language, no translation is needed and the input strings will be returned. If a cached translation set from a previous API call satisfies the requirements, it will be returned. Otherwise, this method will reach out to Google Translate API and cache the result. This result can be handled with async/await, or with the delegate method translator(_:didCompletionTranslation).
     ///
@@ -250,7 +261,7 @@ extension Translator {
     /// - parameter outputLanguage: The ISO 639-1 code for the output language.
     /// - parameter translationId: The translation ID.
     ///
-	private func performTranslation(_ inputStrings: [String: String], outputLanguage: String, translationId: Int) async throws -> TranslationSet {
+	@MainActor private func performTranslation(_ inputStrings: [String: String], outputLanguage: String, translationId: Int) async throws -> TranslationSet {
 		
 		let translations = try await translationService.performTranslation(inputStrings: inputStrings, inputLanguage: inputLanguage, outputLanguage: outputLanguage)
 		

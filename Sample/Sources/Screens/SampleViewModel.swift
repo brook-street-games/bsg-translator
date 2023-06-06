@@ -78,9 +78,7 @@ extension SampleViewModel {
 		self.pendingLanguage = language
 		translator.outputLanguage = language.code
 		
-		Task {
-			try await translator.updateTranslations()
-		}
+		translator.updateTranslations()
 	}
 }
 
@@ -117,11 +115,11 @@ extension SampleViewModel: TranslatorDelegate {
 extension SampleViewModel {
 	
 	func displayValue(for fruit: Fruit) -> String {
-		translator.translate(fruit.key)
+		translator.translate(fruit.key, capitalization: .allFirst)
 	}
 	
 	func displayValue(for language: Language) -> String {
-		translator.translate(language.name)
+		language.name
 	}
 }
 
