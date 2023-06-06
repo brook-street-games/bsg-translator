@@ -51,7 +51,7 @@ Create a new file at ***File->New->File->Strings File***. This file should conta
 "watermelon" = "watermelon";
 ```
 
-#### Get Translations
+#### Update Translations
 
 ```swift
 // Import the framework.
@@ -75,7 +75,7 @@ func translator(_ translator: Translator, didCompleteTranslation result: Result<
 	switch result {
 		
 	case .success:
-		// Start accessing translations.
+		// Handle completion.
 	case .failure(let error):
 		// Handle error.
 	}
@@ -98,9 +98,9 @@ A translation ID can be used to force a new API call when string values change. 
 translator.updateTranslations(translationId: 2)
 ```
 
-#### Async/Await
+#### Async / Await
 
-Instead of supplying a delegate, async/await can be used.
+Instead of supplying a delegate, the result can be handled in-line.
 
 ```swift
 Task {
