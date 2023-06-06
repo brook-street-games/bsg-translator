@@ -12,15 +12,15 @@ import Foundation
 public protocol TranslatorDelegate: AnyObject {
     
     /// Called when translation completes, regardless of if an API call was made.
-    func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>)
+    func translator(_ translator: Translator, didUpdateTranslations result: Result<TranslationSet, TranslationError>)
     /// Called when a loggable event occurs. The delegate may then log the event accordingly.
-    func translator(_ translator: Translator, didEncounterLogEvent logEvent: String)
+    func translator(_ translator: Translator, didEncounterLogEvent event: String)
 }
 
 public extension TranslatorDelegate {
     
-	func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>) {}
-    func translator(_ translator: Translator, didEncounterLogEvent logEvent: String) {}
+	func translator(_ translator: Translator, didUpdateTranslations result: Result<TranslationSet, TranslationError>) {}
+    func translator(_ translator: Translator, didEncounterLogEvent event: String) {}
 }
 
 // MARK: - Class -
@@ -190,25 +190,13 @@ extension Translator {
 // MARK: - Translation -
 
 extension Translator {
-
-	///
-	/// Translate input strings to a translation set in the output language. This method uses caching to avoid making excess API calls. If the output language matches the input language, no translation is needed and the input strings will be returned. If a cached translation set from a previous API call satisfies the requirements, it will be returned. Otherwise, this method will reach out to Google Translate API and cache the result. This result can be handled with async/await, or with the delegate method translator(_:didCompletionTranslation).
-	///
-	/// - parameter translationId: An optional ID for a translation set. A cached translation set must meet or exceed the supplied ID to be considered valid. For example, a client could keep track of the last ID used and only increment it when changes have been made to the input strings. If nil is supplied, any saved translation set matching the output language will be considered valid. Nil is the default.
-	///
-	public func updateTranslations(translationId: Int? = nil) {
-		
-		guard delegate != nil else { fatalError("Translator must have a delegate to use this method.") }
-		Task { try await updateTranslations(translationId: translationId) }
-	}
 	
     ///
     /// Translate input strings to a translation set in the output language. This method uses caching to avoid making excess API calls. If the output language matches the input language, no translation is needed and the input strings will be returned. If a cached translation set from a previous API call satisfies the requirements, it will be returned. Otherwise, this method will reach out to Google Translate API and cache the result. This result can be handled with async/await, or with the delegate method translator(_:didCompletionTranslation).
     ///
     /// - parameter translationId: An optional ID for a translation set. A cached translation set must meet or exceed the supplied ID to be considered valid. For example, a client could keep track of the last ID used and only increment it when changes have been made to the input strings. If nil is supplied, any saved translation set matching the output language will be considered valid. Nil is the default.
     ///
-	@discardableResult
-    @MainActor public func updateTranslations(translationId: Int? = nil) async throws -> TranslationSet {
+    public func updateTranslations(translationId: Int? = nil) {
         
 		do {
 			let inputStrings = try getInputStrings()
@@ -219,38 +207,35 @@ extension Translator {
 				delegate?.translator(self, didEncounterLogEvent: #"Input language "\#(outputLanguage)" matches output language "\#(outputLanguage)". Returning input strings."#)
 				let inputTranslationSet = TranslationSet(id: translationId, language: outputLanguage, translations: inputStrings)
 				currentTranslationSet = inputTranslationSet
-				delegate?.translator(self, didCompleteTranslation: .success(inputTranslationSet))
-				return inputTranslationSet
+				delegate?.translator(self, didUpdateTranslations: .success(inputTranslationSet))
 				
 			} else if let savedTranslationSet = getCachedTranslationSet(for: outputLanguage) {
 				
 				if translationId > savedTranslationSet.id {
 					// The cached translation set is considered invalid based on translation ID.
 					delegate?.translator(self, didEncounterLogEvent: #"Provided translation ID (\#(translationId)) is higher than the cached translation set (\#(savedTranslationSet.id)). Performing translation for "\#(outputLanguage)"."#)
-					return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+					performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
 					
 				} else if let missingInputStrings = savedTranslationSet.getMissingTranslations(from: inputStrings) {
 					// Additional input strings have been found.
 					delegate?.translator(self, didEncounterLogEvent: #"Cached translation set is missing some keys (\#(missingInputStrings.keys). Performing translation for "\#(outputLanguage)"."#)
-					return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+					performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
 					
 				} else {
 					// A valid translation set was found in cache.
 					delegate?.translator(self, didEncounterLogEvent: #"Found cached translation set for "\#(outputLanguage)". Returning cached translations."#)
 					currentTranslationSet = savedTranslationSet
-					delegate?.translator(self, didCompleteTranslation: .success(savedTranslationSet))
-					return savedTranslationSet
+					delegate?.translator(self, didUpdateTranslations: .success(savedTranslationSet))
 				}
 			} else {
 				// No cached translation set was found for the output language.
 				delegate?.translator(self, didEncounterLogEvent: #"No cached translation set found. Performing translation for "\#(outputLanguage)"."#)
-				return try await performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
+				performTranslation(inputStrings, outputLanguage: outputLanguage, translationId: translationId)
 			}
 		} catch {
-			
+			// Handle input strings error.
 			let error = error as? TranslationError ?? TranslationError.unknown
-			delegate?.translator(self, didCompleteTranslation: .failure(error))
-			throw error
+			delegate?.translator(self, didUpdateTranslations: .failure(error))
 		}
     }
     
@@ -261,15 +246,18 @@ extension Translator {
     /// - parameter outputLanguage: The ISO 639-1 code for the output language.
     /// - parameter translationId: The translation ID.
     ///
-	@MainActor private func performTranslation(_ inputStrings: [String: String], outputLanguage: String, translationId: Int) async throws -> TranslationSet {
+	private func performTranslation(_ inputStrings: [String: String], outputLanguage: String, translationId: Int) {
 		
-		let translations = try await translationService.performTranslation(inputStrings: inputStrings, inputLanguage: inputLanguage, outputLanguage: outputLanguage)
-		
-		let translationSet = TranslationSet(id: translationId, language: outputLanguage, translations: translations)
-		setCachedTranslationSet(translationSet)
-		currentTranslationSet = translationSet
-		
-		delegate?.translator(self, didCompleteTranslation: .success(translationSet))
-		return translationSet
-    }
+		Task {
+			let translations = try await translationService.performTranslation(inputStrings: inputStrings, inputLanguage: inputLanguage, outputLanguage: outputLanguage)
+			
+			DispatchQueue.main.async {
+				let translationSet = TranslationSet(id: translationId, language: outputLanguage, translations: translations)
+				self.setCachedTranslationSet(translationSet)
+				self.currentTranslationSet = translationSet
+				
+				self.delegate?.translator(self, didUpdateTranslations: .success(translationSet))
+			}
+		}
+	}
 }

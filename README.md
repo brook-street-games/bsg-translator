@@ -72,7 +72,7 @@ translator.delegate = self
 translator.updateTranslations()
 
 // Handle the result.
-func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>) {
+func translator(_ translator: Translator, didUpdateTranslations result: Result<TranslationSet, TranslationError>) {
 	
 	switch result {
 		
@@ -100,18 +100,13 @@ A translation ID can be used to force a new API call when string values change. 
 translator.updateTranslations(translationId: 2)
 ```
 
-#### Async / Await
+#### Log Events
 
-Instead of supplying a delegate, the result can be handled in-line.
+Log events provide more information about what is going on under the hood of translator..
 
 ```swift
-Task {
-	do {
-		try await translator.updateTranslations()
-		// Handle completion.
-	} catch {
-		// Handle error.
-	}
+func translator(_ translator: Translator, didEncounterLogEvent event: String) {
+	// Handle log event.
 }
 ```
 

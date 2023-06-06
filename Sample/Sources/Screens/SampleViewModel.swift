@@ -86,7 +86,7 @@ extension SampleViewModel {
 
 extension SampleViewModel: TranslatorDelegate {
 	
-	func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>) {
+	func translator(_ translator: Translator, didUpdateTranslations result: Result<TranslationSet, TranslationError>) {
 		
 		switch result {
 			
