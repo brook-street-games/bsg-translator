@@ -26,7 +26,7 @@ class SampleViewModel: ObservableObject {
 	/// The language with translation in progress.
 	@Published var pendingLanguage: Language?
 	/// The display language.
-	@Published var language: Language
+	@Published var language: Language!
 	/// Used to control ripple animation.
 	@Published var animatingFruitKeys = Set<String>()
 	/// Determines if an alert should be presented.
@@ -63,7 +63,7 @@ class SampleViewModel: ObservableObject {
 	// MARK: - Initializers -
 	
 	init() {
-		language = languages[0]
+		selectLanguage(languages[0])
 		debugPrint("Disk cache directory: \(Translator.Constants.diskCacheDirectory)")
 	}
 }
