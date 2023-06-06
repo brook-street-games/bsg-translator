@@ -50,7 +50,7 @@ public class Translator {
     /// The current set of translated text.
     private var currentTranslationSet: TranslationSet?
     /// The service used to perform translation.
-    private let translationService: TranslationService
+    private let translationService: TranslationServiceProtocol
 	/// The file manager instance used for caching to disk.
 	private lazy var fileManager = FileManager.default
     
@@ -75,6 +75,20 @@ public class Translator {
 		
 		createCacheDirectory()
     }
+	
+	///
+	/// Used for internal testing purposes only.
+	///
+	init(inputLanguage: String, inputType: InputType, outputLanguage: String, translationService: TranslationServiceProtocol, delegate: TranslatorDelegate? = nil) {
+		
+		self.inputLanguage = inputLanguage
+		self.inputType = inputType
+		self.outputLanguage = outputLanguage
+		self.delegate = delegate
+		self.translationService = translationService
+		
+		createCacheDirectory()
+	}
 }
 
 // MARK: - Retrieval -
@@ -185,6 +199,18 @@ extension Translator {
 		let filePath = Constants.diskCacheDirectory.appendingPathComponent(translationSet.language)
 		fileManager.createFile(atPath: filePath.path, contents: data)
     }
+	
+	///
+	/// Clear all cached translation sets.
+	///
+	func clearCache() {
+		
+		if let contents = try? fileManager.contentsOfDirectory(at: Constants.diskCacheDirectory, includingPropertiesForKeys: nil) {
+			for file in contents {
+				try? fileManager.removeItem(at: file)
+			}
+		}
+	}
 }
 
 // MARK: - Translation -

@@ -12,15 +12,15 @@ class TranslationSetTests: XCTestCase {}
 
 extension TranslationSetTests {
     
-    func testMissingInputStrings() {
+    func testGetMissingTranslations() {
         
-        let translationSet = TranslationSet(id: 0, language: "it", translations: ["dog": "cane", "cat": "gatto", "monkey": "scimmia", "spider": "ragno"])
+        let translationSet = TranslationSet(id: 0, language: "it", translations: ["apple": "mela", "banana": "banana", "blueberry": "mirtillo", "coconut": "noce di cocco"])
         
-        XCTAssertNil(translationSet.getMissingTranslations(in: [:]))
-        XCTAssertNil(translationSet.getMissingTranslations(in: ["cat": "gatto", "dog": "cane"]))
-        XCTAssertNil(translationSet.getMissingTranslations(in: ["cat": "value", "dog": "value"]))
+        XCTAssertNil(translationSet.getMissingTranslations(from: [:]))
+        XCTAssertNil(translationSet.getMissingTranslations(from: ["apple": "mela", "banana": "banana"]))
+        XCTAssertNil(translationSet.getMissingTranslations(from: ["apple": "", "banana": ""]))
         
-        XCTAssertEqual(translationSet.getMissingTranslations(in: ["shark": "squalo", "dog": "cane"]), ["shark": "squalo"])
-        XCTAssertEqual(translationSet.getMissingTranslations(in: ["bee": "ape", "lion": "leone", "duck": "anatra"]), ["bee": "ape", "lion": "leone", "duck": "anatra"])
+		XCTAssertEqual(translationSet.getMissingTranslations(from: ["apple": "mela", "banana": "banana", "cherry": "ciliegia"]), ["cherry": "ciliegia"])
+		XCTAssertEqual(translationSet.getMissingTranslations(from: ["cherry": "ciliegia", "grape": "uva", "kiwi": "kiwi"]), ["cherry": "ciliegia", "grape": "uva", "kiwi": "kiwi"])
     }
 }

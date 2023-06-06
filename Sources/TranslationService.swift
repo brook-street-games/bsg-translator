@@ -7,10 +7,20 @@
 
 import Foundation
 
+// MARK: - Protocol -
+
+protocol TranslationServiceProtocol {
+	
+	init(apiKey: String)
+	func performTranslation(inputStrings: [String: String], inputLanguage: String, outputLanguage: String) async throws -> [String: String]
+}
+
+// MARK: Class -
+
 ///
 /// A service for performing translation with Google Translate API.
 ///
-public class TranslationService {
+public class TranslationService: TranslationServiceProtocol {
     
 	// MARK: - Constants -
 	
@@ -28,7 +38,7 @@ public class TranslationService {
     
     // MARK: - Initializers -
     
-    init(apiKey: String) {
+    required init(apiKey: String) {
         self.apiKey = apiKey
     }
 }
