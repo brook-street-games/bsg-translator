@@ -4,6 +4,8 @@
 
 An iOS framework for quick multi-language support using Google Translate API. Strings can be translated directly from a .strings file, or passed in manually. An API key is required, and clients will be charged only after reaching a freemium threshold. For more information, check out [Google Translate API](https://rapidapi.com/googlecloud/api/google-translate1/). This framework utilizes caching to limit API calls.
 
+https://github.com/brook-street-games/bsg-translator/assets/72933425/ff2cfb8b-220d-4e50-bfc3-3e3d8a65af86
+
 ## Installation
 
 #### Requirements
