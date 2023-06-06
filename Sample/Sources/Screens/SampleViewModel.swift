@@ -20,12 +20,17 @@ class SampleViewModel: ObservableObject {
 		static let fruitAnimationHalfDuration: TimeInterval = 0.1
 		static let fruitAnimationDelay: TimeInterval = 0.02
 	}
+	
 	// MARK: - Properties -
 	
-	/// The currently selected language.
+	/// The language with translation in progress.
+	@Published var pendingLanguage: Language?
+	/// The display language.
 	@Published var language: Language
 	/// Used to control ripple animation.
 	@Published var animatingFruitKeys = Set<String>()
+	/// Determines if an alert should be presented.
+	@Published var alertIsPresented: Bool = false
 	/// Translates text between languages.
 	private lazy var translator = Translator(apiKey: "API_KEY", inputLanguage: "en", inputType: .stringsFile(fileName: "Sample"), delegate: self)
 	
@@ -69,13 +74,11 @@ extension SampleViewModel {
 	
 	func selectLanguage(_ language: Language) {
 		
-		guard language != self.language else { return }
-		self.language = language
+		guard language != self.language, language != pendingLanguage else { return }
+		self.pendingLanguage = language
 		translator.outputLanguage = language.code
 		
-		Task {
-			try await translator.updateTranslations()
-		}
+		translator.updateTranslations()
 	}
 }
 
@@ -86,12 +89,20 @@ extension SampleViewModel: TranslatorDelegate {
 	func translator(_ translator: Translator, didCompleteTranslation result: Result<TranslationSet, TranslationError>) {
 		
 		switch result {
+			
 		case .success:
 			print("Translation success.")
+			if let pendingLanguage { language = pendingLanguage }
 			animateFruit()
+			
 		case .failure(let error):
-			print("Translation failure. \(error).")
+			print("Translation failure. \(error)")
+			if case .invalidResponse(let statusCode) = error, statusCode == 403 {
+				alertIsPresented = true
+			}
 		}
+		
+		pendingLanguage = nil
 	}
 	
 	func translator(_ translator: Translator, didEncounterLogEvent logEvent: String) {
@@ -104,11 +115,11 @@ extension SampleViewModel: TranslatorDelegate {
 extension SampleViewModel {
 	
 	func displayValue(for fruit: Fruit) -> String {
-		translator.translate(fruit.key)
+		translator.translate(fruit.key, capitalization: .allFirst)
 	}
 	
 	func displayValue(for language: Language) -> String {
-		translator.translate(language.name)
+		language.name
 	}
 }
 

@@ -1,2 +1,5 @@
 xcuserdata/
 .DS_Store
+
+fastlane/report.xml
+fastlane/test_output/
