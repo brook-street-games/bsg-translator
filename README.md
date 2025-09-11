@@ -29,7 +29,7 @@ https://github.com/brook-street-games/bsg-translator/assets/72933425/ff2cfb8b-22
 
 ### Gather Source Strings
 
-Create a new file at ***File->New->File->Strings File***. This file should contain keys and input language translations for all text to be translated. Alternatively, a raw dictionary can be used.
+Create a new file at ***File->New->File from Template...->Strings File***. This file should contain keys and source language translations for all text to be translated. Alternatively, a raw dictionary can be used.
 
 **Sample.strings**
 
@@ -57,7 +57,7 @@ Create a new file at ***File->New->File->Strings File***. This file should conta
 import BSGTranslator
 
 // Create an instance of Translator using the API key from installation.
-let translator = Translator(apiKey: "API_KEY", inputLanguage: "en", inputType: .stringsFile(fileName: "Sample"))
+let translator = Translator(apiKey: "API_KEY", sourceLanguage: "en", sourceType: .stringsFile(fileName: "Sample"))
 
 do {
 	// Translate source strings into the target language (defaults to iOS settings). This should be called once at the launch of the application, and again if another language is needed.
