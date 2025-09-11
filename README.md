@@ -2,37 +2,34 @@
 
 ## Overview
 
-An iOS framework for quick multi-language support using Google Translate API. Strings can be translated directly from a .strings file, or passed in manually. An API key is required, and clients will be charged only after reaching a freemium threshold. For more information, check out [Google Translate API](https://rapidapi.com/googlecloud/api/google-translate1/). This framework utilizes caching to limit API calls.
+An iOS library for quick multi-language support using Google Cloud Translation API. Caching is utilized to limit API calls.
 
 https://github.com/brook-street-games/bsg-translator/assets/72933425/ff2cfb8b-220d-4e50-bfc3-3e3d8a65af86
 
+## Requirements
+
++ iOS 15+
++ Google Cloud Translation API Key
+
 ## Installation
 
-#### Requirements
+### 1. Google Cloud
 
-+ iOS 13+
-+ Google Translate API
+1. Follow the steps in [Cloud Translation Setup](https://cloud.google.com/translate/docs/setup) to get an API key.
 
-#### Google Translate API
+### 2. Swift Package Manager
 
-1. Create a [RapidAPI](https://rapidapi.com/) account.
-2. Visit **API Hub** from the dashboard and subscribe to [Google Translate API](https://rapidapi.com/googlecloud/api/google-translate1/).
-3. Navigate to ***My Apps->Add New App*** from the dashboard and create a new application.
-4. Copy the API key for the new application.
-
-#### Swift Package Manager
-
-1. Navigate to ***File->Add Packages***.
-3. Enter Package URL: https://github.com/brook-street-games/bsg-translator.git
-3. Select a dependency rule. **Up to Next Major** is recommended.
+1. Navigate to ***File->Add Package Dependencies...***
+3. Enter package URL: https://github.com/brook-street-games/bsg-translator.git
+3. Select a dependency rule. **Up to Next Major Version** is recommended.
 4. Select a project.
 5. Select **Add Package**.
 
 ## Usage
 
-#### Create a Strings File
+### Gather Source Strings
 
-Create a new file at ***File->New->File->Strings File***. This file should contain keys and input language translations for all text to be translated.
+Create a new file at ***File->New->File->Strings File***. This file should contain keys and input language translations for all text to be translated. Alternatively, a raw dictionary can be used.
 
 **Sample.strings**
 
@@ -53,74 +50,58 @@ Create a new file at ***File->New->File->Strings File***. This file should conta
 "watermelon" = "watermelon";
 ```
 
-#### Update Translations
+### Update Translations
 
 ```swift
 // Import the framework.
 import BSGTranslator
 
-// Grab the API key from installation.
-let apiKey = "API_KEY"
+// Create an instance of Translator using the API key from installation.
+let translator = Translator(apiKey: "API_KEY", inputLanguage: "en", inputType: .stringsFile(fileName: "Sample"))
 
-// Create an instance of Translator.
-let translator = Translator(apiKey: apiKey, inputLanguage: "en", inputType: .stringsFile(fileName: "Sample"))
-
-// Add a delegate.
-translator.delegate = self
-
-// Translate input strings into output language (defaults to iOS settings).
-translator.updateTranslations()
-
-// Handle the result.
-func translator(_ translator: Translator, didUpdateTranslations result: Result<TranslationSet, TranslationError>) {
-	
-	switch result {
-		
-	case .success:
-		// Handle completion.
-	case .failure(let error):
-		// Handle error.
-	}
+do {
+	// Translate source strings into the target language (defaults to iOS settings). This should be called once at the launch of the application, and again if another language is needed.
+	try await translator.updateTranslations()
+} catch {
+	// Handle error.
 }
 ```
 
-#### Access Translations
+### Access Translations
 
 ```swift
-label.text = translator.translate("pineapple")
+let translation = translator.getTranslatedValue(for: "coconut")
+```
+or
+
+```swift
+let translation = translator["coconut"]
 ```
 
 ## Customization
 
-#### Translation ID
+### Translation ID
 
-A translation ID can be used to force a new API call when string values change. For example, if an application is being translated to Italian, and the english translation for pineapple was changed from "pineapple" to "spikey fruit" in a new version, users with the previous version would still return the cached value "ananas". Passing a translation ID of 2 (assuming nil or a lower value was previously passed) would force a translation and correctly return "frutto appuntito".
+A translation ID can be used to force a new API call when string values change, but keys stay the same.
 
 ```swift
+// Force an update if the cached value has an ID of <2.
 translator.updateTranslations(translationId: 2)
 ```
 
-#### Log Events
+### Capitalization
 
-Log events provide more information about what is going on under the hood of translator..
-
-```swift
-func translator(_ translator: Translator, didEncounterLogEvent event: String) {
-	// Handle log event.
-}
-```
-
-#### Capitalization
-
-* **None**. No adjustment.
+The formatting of translations can be controlled with capitalization styles.
+* **None**. Return the result unaltered.
 * **First**. Capitalize the first letter of the first word.
 * **All First**. Captitalize the first letter of each word.
 * **All**. Capitalize all letters.
        
 ```swift
-label.text = translator.translate("pineapple", capitalization: .all)
+// Return "Noce Di Cocco"
+let translation = translator.getTranslatedValue(for: "coconut", capitalization: .allFirst)
 ```
 
 ## Author
 
-Brook Street Games LLC
+Brook Street Games
