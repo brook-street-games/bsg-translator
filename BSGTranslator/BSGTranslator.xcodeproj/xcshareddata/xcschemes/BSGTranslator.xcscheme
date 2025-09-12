@@ -30,7 +30,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:../BSGTranslator.xctestplan"
+            reference = "container:BSGTranslatorTests/BSGTranslatorTests.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>

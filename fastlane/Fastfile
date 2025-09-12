@@ -6,6 +6,7 @@ platform :ios do
     scan(
       device: "iPhone 16",
       scheme: "BSGTranslator",
+      testplan: "BSGTranslatorTests",
       workspace: "BSGTranslator.xcworkspace"
     )
   end
