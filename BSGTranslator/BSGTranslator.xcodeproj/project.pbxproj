@@ -36,21 +36,11 @@
 			);
 			target = B5B677192E7368FB00ABAB58 /* BSGTranslatorTests */;
 		};
-		B5F861862E7289A600D76D06 /* Exceptions for "BSGTranslator" folder in "BSGTranslator" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Assets/Info.plist,
-			);
-			target = B5F861162E72891C00D76D06 /* BSGTranslator */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B5F861282E72895A00D76D06 /* BSGTranslator */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				B5F861862E7289A600D76D06 /* Exceptions for "BSGTranslator" folder in "BSGTranslator" target */,
-			);
 			path = BSGTranslator;
 			sourceTree = "<group>";
 		};
