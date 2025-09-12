@@ -8,15 +8,17 @@ on:
 
 jobs:
   build:
-    name: Test
+    name: Run Tests
     runs-on: macos-latest
-
     steps:
+    # Check out the repository.
     - name: Checkout
-      uses: actions/checkout@v3
-    - name: Install Dependencies
+      uses: actions/checkout@v5
+    # Install gems needed for Fastlane.
+    - name: Install Gems
       run: |
         gem install bundler
         bundle install
-    - name: Test
+    # Run unit tests with Fastlane.
+    - name: Fastlane Scan
       run: bundle exec fastlane test

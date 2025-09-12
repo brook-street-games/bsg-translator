@@ -2,9 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:BSGTranslator.xcodeproj">
+      location = "group:BSGTranslator/BSGTranslator.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Sample/BSGTranslatorSample.xcodeproj">
+      location = "container:BSGTranslatorSample/BSGTranslatorSample.xcodeproj">
    </FileRef>
 </Workspace>
