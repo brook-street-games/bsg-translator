@@ -1,7 +1,7 @@
 //
 //  TranslationServiceMock.swift
 //
-//  Created by JechtSh0t on 6/6/23.
+//  Created by JechtShot on 6/6/23.
 //  Copyright © 2023 Brook Street Games. All rights reserved.
 //
 
