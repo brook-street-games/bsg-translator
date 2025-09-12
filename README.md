@@ -98,7 +98,7 @@ The formatting of translations can be controlled with capitalization styles.
 * **All**. Capitalize all letters.
        
 ```swift
-// Return "Noce Di Cocco"
+// Return "Noce Di Cocco".
 let translation = translator.getTranslatedValue(for: "coconut", capitalization: .allFirst)
 ```
 
